@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data Terstruktur & Spreadsheet — Informatika Kelas VIII</title>
+<style>
+  :root{
+    --bg:#0A1024;
+    --bg2:#131A3A;
+    --card:rgba(255,255,255,.07);
+    --line:rgba(140,180,255,.28);
+    --accent:#38BDF8;
+    --accent2:#FBBF24;
+    --accent3:#F472B6;
+    --green:#4ADE80;
+    --red:#FB7185;
+    --text:#EEF4FF;
+    --muted:#A8BBD8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:#050B1C;
+    font-family:"Segoe UI",Inter,system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    color:var(--text);-webkit-font-smoothing:antialiased}
+
+  #stage{
+    position:absolute;top:50%;left:50%;
+    width:1280px;height:720px;
+    transform-origin:center center;
+    background:
+      radial-gradient(900px 520px at 12% -10%, #1A3A6E 0%, transparent 60%),
+      radial-gradient(800px 500px at 105% 110%, #26306B 0%, transparent 62%),
+      linear-gradient(160deg,var(--bg) 0%, var(--bg2) 100%);
+    border-radius:18px;overflow:hidden;
+    box-shadow:0 30px 90px rgba(0,0,0,.65);
+  }
+  #stage::after{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(115deg,rgba(56,189,248,.06),transparent 40%,rgba(244,114,182,.06));
+  }
+
+  .slide{
+    position:absolute;inset:0;padding:44px 60px 54px;
+    opacity:0;visibility:hidden;
+    transform:translateY(26px) scale(.985);
+    transition:opacity .5s ease, transform .55s cubic-bezier(.22,.9,.3,1), visibility .5s;
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .slide.active{opacity:1;visibility:visible;transform:none}
+
+  .eyebrow{
+    font-size:14px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--accent);font-weight:700;
+  }
+  h1.title{font-size:42px;line-height:1.1;font-weight:800;letter-spacing:-.5px}
+  h2.title{font-size:34px;line-height:1.12;font-weight:800;letter-spacing:-.4px}
+  .sub{font-size:20px;color:var(--muted)}
+  .lead{font-size:22px;line-height:1.42;color:#D7E7F7;max-width:1080px}
+  .hl{color:var(--accent2)}
+  .hl2{color:var(--accent)}
+  .hl3{color:var(--accent3)}
+
+  ul.bullets{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:4px}
+  ul.bullets li{
+    font-size:22px;line-height:1.32;padding-left:42px;position:relative;
+  }
+  ul.bullets li::before{
+    content:"";position:absolute;left:8px;top:11px;width:14px;height:14px;
+    border-radius:5px;background:linear-gradient(135deg,var(--accent),#0ea5b7);
+    box-shadow:0 0 14px rgba(56,189,248,.55);
+  }
+  ul.bullets.gold li::before{background:linear-gradient(135deg,var(--accent2),#d97706);box-shadow:0 0 14px rgba(251,191,36,.5)}
+  ul.bullets.pink li::before{background:linear-gradient(135deg,var(--accent3),#be185d);box-shadow:0 0 14px rgba(244,114,182,.5)}
+
+  ol.steps{list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:10px}
+  ol.steps li{
+    counter-increment:s;font-size:21px;line-height:1.32;padding-left:54px;position:relative;
+  }
+  ol.steps li::before{
+    content:counter(s);position:absolute;left:0;top:-2px;width:34px;height:34px;
+    display:grid;place-items:center;border-radius:50%;
+    background:rgba(56,189,248,.15);border:2px solid var(--accent);
+    color:var(--accent);font-weight:800;font-size:16px;
+  }
+
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:16px 18px;backdrop-filter:blur(4px);
+  }
+  .card h3{font-size:20px;font-weight:800;margin-bottom:6px;color:var(--accent)}
+  .card p{font-size:17px;line-height:1.38;color:#CBDFF2}
+  .card.gold h3{color:var(--accent2)}
+  .card.gold{border-color:rgba(251,191,36,.4)}
+  .card.pink h3{color:var(--accent3)}
+  .card.pink{border-color:rgba(244,114,182,.4)}
+
+  .chips{display:flex;gap:10px;flex-wrap:wrap}
+  .chip{
+    font-size:16px;font-weight:700;padding:7px 15px;border-radius:999px;
+    background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.45);color:#BAEBFF;
+  }
+  .chip.gold{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.5);color:#FDE7A9}
+  .chip.pink{background:rgba(244,114,182,.12);border-color:rgba(244,114,182,.5);color:#FBCFE8}
+
+  .code{
+    font-family:"Consolas","Fira Code","Courier New",monospace;
+    background:rgba(0,0,0,.45);border-left:5px solid var(--accent);
+    border-radius:12px;padding:16px 22px;font-size:20px;line-height:1.48;
+    color:#CFEAF9;white-space:pre-wrap;
+  }
+  .code.sm{font-size:17px;line-height:1.42}
+  .code b{color:var(--accent2);font-weight:700}
+
+  .flow{display:flex;align-items:stretch;gap:6px;margin-top:8px}
+  .flowbox{
+    flex:1;background:var(--card);border:2px solid var(--line);border-radius:14px;
+    padding:16px 10px;text-align:center;display:flex;flex-direction:column;
+    justify-content:center;gap:6px;
+  }
+  .flowbox b{font-size:18px;color:var(--accent);letter-spacing:.03em}
+  .flowbox span{font-size:14px;color:var(--muted);line-height:1.3}
+  .flowbox.gold{border-color:rgba(251,191,36,.5)}
+  .flowbox.gold b{color:var(--accent2)}
+  .arrowx{display:flex;align-items:center;font-size:24px;color:var(--accent2);font-weight:900;padding:0 2px}
+
+  .timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+  .tl{
+    background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .tl .num{
+    width:38px;height:38px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--accent),#0891b2);color:#04121F;font-weight:900;font-size:18px;
+  }
+  .tl b{font-size:19px;line-height:1.2}
+  .tl p{font-size:15px;color:var(--muted);line-height:1.35}
+
+  .level{
+    display:inline-flex;align-items:center;gap:10px;
+    font-size:19px;font-weight:800;padding:8px 20px;border-radius:999px;
+    background:rgba(251,191,36,.14);border:1px solid rgba(251,191,36,.5);
+    color:var(--accent2);align-self:flex-start;
+  }
+
+  .warn{
+    background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.45);
+    border-radius:14px;padding:13px 20px;font-size:19px;line-height:1.4;color:#FFE4E8;
+  }
+  .warn b{color:#FDA4AF}
+  .ok{
+    background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.45);
+    border-radius:14px;padding:13px 20px;font-size:19px;line-height:1.4;color:#E7FFEE;
+  }
+  .ok b{color:#86EFAC}
+  .note{
+    background:rgba(56,189,248,.10);border:1px dashed rgba(56,189,248,.5);
+    border-radius:14px;padding:12px 20px;font-size:18px;line-height:1.4;color:#D6EEFF;
+  }
+  .note b{color:var(--accent)}
+
+  table{width:100%;border-collapse:collapse;font-size:17px;border-radius:12px;overflow:hidden}
+  th,td{padding:8px 12px;text-align:left;border-bottom:1px solid rgba(140,180,255,.18);vertical-align:top}
+  th{background:rgba(56,189,248,.16);color:#BFF3FB;font-size:15px;letter-spacing:.03em}
+  td:first-child{font-weight:700;color:#EEF4FF;white-space:nowrap}
+  tr:nth-child(even) td{background:rgba(255,255,255,.03)}
+  table.rub{font-size:14.5px}
+  table.rub td:first-child{white-space:normal;color:#FDE7A9}
+  table.mini{font-family:"Consolas","Courier New",monospace;font-size:18px;table-layout:fixed}
+  table.mini td{text-align:center}
+  table.mini td.hi{background:rgba(251,191,36,.35);color:#FDE7A9;font-weight:800}
+  table.mini th{text-align:center}
+
+  .f{opacity:0;transform:translateY(16px);transition:opacity .45s ease, transform .45s cubic-bezier(.22,.9,.3,1)}
+  .f.show{opacity:1;transform:none}
+
+  #hud{
+    position:fixed;left:0;right:0;bottom:14px;display:flex;align-items:center;
+    justify-content:center;gap:14px;z-index:50;
+  }
+  #hud button{
+    width:46px;height:46px;border-radius:50%;border:1px solid rgba(56,189,248,.5);
+    background:rgba(10,16,36,.85);color:var(--accent);font-size:18px;cursor:pointer;
+    display:grid;place-items:center;transition:.2s;
+  }
+  #hud button:hover{background:rgba(56,189,248,.2);transform:translateY(-2px)}
+  #counter{font-size:14px;color:#8FA9CC;font-weight:700;letter-spacing:.1em;min-width:70px;text-align:center}
+  #bar{position:fixed;left:0;bottom:0;height:4px;width:0%;
+    background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2));
+    transition:width .35s ease;z-index:60}
+
+  .cover{justify-content:center;gap:20px;padding-left:76px}
+  .cover h1{font-size:56px;line-height:1.06;font-weight:900;letter-spacing:-1.2px}
+  .grad{background:linear-gradient(100deg,#38BDF8 5%,#F472B6 55%,#FBBF24 95%);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .cover .sub{font-size:22px}
+  .rule{width:110px;height:6px;border-radius:6px;
+    background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2))}
+  .quote{font-size:24px;font-weight:700;line-height:1.35;color:#EEF4FF;max-width:1000px}
+  .quote small{display:block;font-size:17px;color:var(--muted);margin-top:10px;font-weight:500}
+</style>
+</head>
+<body>
+
+<div id="stage">
+
+  <!-- ============ 1 · COVER ============ -->
+  <section class="slide cover active">
+    <p class="eyebrow f">SMP NEGERI 19 KOTA BEKASI · TIM MGMP INFORMATIKA</p>
+    <div class="rule f"></div>
+    <h1 class="f">Data <span class="grad">Terstruktur</span><br>&amp; Spreadsheet</h1>
+    <p class="sub f">Informatika · Kelas VIII · Fase D</p>
+    <div class="chips f">
+      <span class="chip gold">Analisis Data</span>
+      <span class="chip pink">Inquiry Learning</span>
+      <span class="chip">Pembelajaran Mendalam</span>
+    </div>
+  </section>
+
+  <!-- ============ 2 · TUJUAN ============ -->
+  <section class="slide">
+    <p class="eyebrow">Tujuan Pembelajaran</p>
+    <h2 class="title">Apa yang Akan Kita Capai?</h2>
+    <ul class="bullets">
+      <li class="f">Menjelaskan pengertian <b>data terstruktur</b></li>
+      <li class="f">Membedakannya dari <b>data tidak terstruktur</b></li>
+      <li class="f">Menyebutkan <b>baris, kolom, sel</b> beserta fungsinya</li>
+      <li class="f">Menerapkan <b>input data yang konsisten</b></li>
+      <li class="f">Menilai <b>kualitas dataset</b> sederhana</li>
+    </ul>
+    <p class="lead f">Intinya: kamu bisa membuat data yang <span class="hl">rapi</span>, <span class="hl2">mudah dicari</span>, dan <span class="hl3">siap diolah</span>. 📊</p>
+  </section>
+
+  <!-- ============ 3 · PEMANTIK ============ -->
+  <section class="slide">
+    <p class="eyebrow">Pemantik</p>
+    <h2 class="title">Kenapa Data Harus "Rapi"?</h2>
+    <div class="grid g2">
+      <div class="card pink f">
+        <h3>❌ Lemari A</h3>
+        <p>Semua pakaian bercampur dalam satu tumpukan besar. Mencari kaos favorit butuh waktu lama.</p>
+      </div>
+      <div class="card f">
+        <h3>✅ Lemari B</h3>
+        <p>Dikelompokkan per rak dan diberi label. Ketemu dalam hitungan detik.</p>
+      </div>
+    </div>
+    <div class="note f">💡 <b>Data juga begitu.</b> Kalau tertata dengan struktur jelas, kita cepat mencari, menghitung, dan memahami isinya.</div>
+  </section>
+
+  <!-- ============ 4 · DEFINISI ============ -->
+  <section class="slide">
+    <p class="eyebrow">Definisi</p>
+    <h2 class="title">Apa Itu Data Terstruktur?</h2>
+    <p class="lead f">Data yang disusun mengikuti <b>format atau pola tertentu</b>, biasanya berbentuk <span class="hl2">tabel</span> dengan baris dan kolom yang jelas.</p>
+    <div class="grid g3">
+      <div class="card f"><h3>📐 Berpola</h3><p>Mengikuti format tertentu.</p></div>
+      <div class="card f"><h3>🔲 Berbentuk Tabel</h3><p>Ada baris dan kolom.</p></div>
+      <div class="card gold f"><h3>⚡ Mudah Diolah</h3><p>Cepat dicari dan dihitung komputer.</p></div>
+    </div>
+    <div class="note f">📝 Contoh: daftar nilai ulangan, jadwal pelajaran, daftar hadir.</div>
+  </section>
+
+  <!-- ============ 5 · PEMBANDING ============ -->
+  <section class="slide">
+    <p class="eyebrow">Pembanding</p>
+    <h2 class="title">Data Tidak Terstruktur</h2>
+    <ul class="bullets pink">
+      <li class="f">Tidak mengikuti <b>format baku</b></li>
+      <li class="f">Contoh: foto, video, rekaman suara</li>
+      <li class="f">Contoh: catatan harian yang bebas</li>
+      <li class="f">Tetap berharga, tapi <b>sulit diolah otomatis</b></li>
+    </ul>
+    <div class="note f">🤔 Keduanya sama-sama berguna. Bedanya: <b>kemudahan komputer mengolahnya</b>.</div>
+  </section>
+
+  <!-- ============ 6 · CEK PEMAHAMAN ============ -->
+  <section class="slide">
+    <p class="eyebrow">Cek Pemahaman</p>
+    <h2 class="title">Mana yang Termasuk Data Terstruktur?</h2>
+    <div class="grid g2">
+      <div class="card pink f"><h3>🎬 Foto kegiatan</h3><p>Kenangan class meeting.</p></div>
+      <div class="card f"><h3>📊 Daftar nilai ulangan</h3><p>Tersusun dalam tabel.</p></div>
+      <div class="card pink f"><h3>🎙️ Rekaman wawancara</h3><p>Suara mentah tanpa format.</p></div>
+      <div class="card f"><h3>🗓️ Jadwal pelajaran</h3><p>Berbentuk tabel hari × jam.</p></div>
+    </div>
+    <div class="ok f">✅ <b>Jawaban:</b> Daftar nilai ulangan &amp; jadwal pelajaran — keduanya berbentuk tabel dengan baris dan kolom.</div>
+  </section>
+
+  <!-- ============ 7 · SPREADSHEET ============ -->
+  <section class="slide">
+    <p class="eyebrow">Alatnya</p>
+    <h2 class="title">Mengenal Spreadsheet</h2>
+    <div class="grid g2">
+      <div class="card f">
+        <h3>📗 Apa Itu?</h3>
+        <p>Lembar kerja digital untuk menyimpan dan mengolah data terstruktur.</p>
+      </div>
+      <div class="card gold f">
+        <h3>🛠️ Contohnya</h3>
+        <p><b>Google Sheets</b> dan <b>Microsoft Excel</b>.</p>
+      </div>
+    </div>
+    <div class="grid g3">
+      <div class="card f"><h3>↕️ Mengurutkan</h3><p>Data otomatis tersortir.</p></div>
+      <div class="card f"><h3>➕ Menjumlahkan</h3><p>Hitung total tanpa manual.</p></div>
+      <div class="card f"><h3>🔎 Menyaring</h3><p>Pilih data tertentu saja.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ 8 · BARIS KOLOM SEL ============ -->
+  <section class="slide">
+    <p class="eyebrow">Bagian-Bagian</p>
+    <h2 class="title">Baris, Kolom, dan Sel</h2>
+    <div class="grid g2" style="grid-template-columns:1fr 1fr;gap:22px;align-items:start">
+      <ul class="bullets" style="gap:8px">
+        <li class="f" style="font-size:20px"><b>Baris</b> → satu entitas / catatan</li>
+        <li class="f" style="font-size:20px"><b>Kolom</b> → satu jenis informasi</li>
+        <li class="f" style="font-size:20px"><b>Sel</b> → pertemuan baris &amp; kolom</li>
+        <li class="f" style="font-size:20px">Alamat sel = <b>kolom + nomor baris</b></li>
+      </ul>
+      <table class="mini f">
+        <tr><th></th><th>A</th><th>B</th><th>C</th></tr>
+        <tr><td style="color:#FDE7A9">1</td><td>Kode</td><td>Status</td><td>Jam</td></tr>
+        <tr><td style="color:#FDE7A9">2</td><td>Siswa 01</td><td>Hadir</td><td>45</td></tr>
+        <tr><td style="color:#FDE7A9">3</td><td>Siswa 02</td><td>Tidak Hadir</td><td class="hi">0</td></tr>
+      </table>
+    </div>
+    <div class="note f">🔎 Sel kuning di atas beralamat <b>C3</b> — kolom C, baris ke-3.</div>
+  </section>
+
+  <!-- ============ 9 · PRINSIP 1-2 ============ -->
+  <section class="slide">
+    <p class="eyebrow">Kaidah Input · Bagian 1</p>
+    <h2 class="title">Prinsip Konsistensi (1 &amp; 2)</h2>
+    <div class="card f">
+      <h3>1️⃣ Satu Kolom, Satu Jenis Data</h3>
+      <p>Jangan gabungkan "Nama" dan "Tanggal Lahir" dalam satu kolom.</p>
+    </div>
+    <div class="card gold f">
+      <h3>2️⃣ Format Seragam</h3>
+      <p>Kalau memilih format <b>23/09/2026</b>, pakai itu di semua baris. Jangan campur dengan "23 Sept 2026".</p>
+    </div>
+    <div class="note f">💡 <b>Analogi:</b> seperti seragam sekolah — kalau semua rapi, kita langsung tahu siapa murid, siapa guru.</div>
+  </section>
+
+  <!-- ============ 10 · PRINSIP 3-5 ============ -->
+  <section class="slide">
+    <p class="eyebrow">Kaidah Input · Bagian 2</p>
+    <h2 class="title">Prinsip Konsistensi (3, 4, 5)</h2>
+    <div class="card f">
+      <h3>3️⃣ Penulisan Konsisten</h3>
+      <p>Selalu "Hadir" / "Tidak Hadir". Jangan kadang "hadir", "H", atau "masuk".</p>
+    </div>
+    <div class="card f">
+      <h3>4️⃣ Tidak Ada Sel Kosong Membingungkan</h3>
+      <p>Kalau memang tidak ada data, isi dengan tanda <b>"-"</b> atau <b>"0"</b>.</p>
+    </div>
+    <div class="card f">
+      <h3>5️⃣ Satu Baris, Satu Catatan</h3>
+      <p>Jangan menggabungkan dua siswa dalam satu baris.</p>
+    </div>
+  </section>
+
+  <!-- ============ 11 · STUDI KASUS ANONIM ============ -->
+  <section class="slide">
+    <p class="eyebrow">Studi Kasus</p>
+    <h2 class="title">Data Kehadiran Anonim</h2>
+    <p class="lead f">Seorang guru ingin menganalisis pola kehadiran dan kebiasaan belajar di kelasnya.</p>
+    <div class="grid g2">
+      <div class="card f">
+        <h3>🔒 Privasi Dijaga</h3>
+        <p>Nama asli diganti kode seperti <b>"Siswa 01"</b>, <b>"Siswa 02"</b>.</p>
+      </div>
+      <div class="card gold f">
+        <h3>🎯 Tujuannya</h3>
+        <p>Melihat pola belajar tanpa membuka identitas siapa pun.</p>
+      </div>
+    </div>
+    <div class="chips f">
+      <span class="chip">Literasi Digital</span>
+      <span class="chip pink">Etika Data</span>
+      <span class="chip gold">Anonimisasi</span>
+    </div>
+  </section>
+
+  <!-- ============ 12 · DATASET DASAR ============ -->
+  <section class="slide">
+    <p class="eyebrow">Dataset Dasar</p>
+    <h2 class="title">Data Kehadiran &amp; Jam Belajar</h2>
+    <table class="f">
+      <tr><th>Kode Siswa</th><th>Hari</th><th>Status Hadir</th><th>Jam Belajar Mandiri (menit)</th></tr>
+      <tr><td>Siswa 01</td><td>Senin</td><td>Hadir</td><td>45</td></tr>
+      <tr><td>Siswa 02</td><td>Senin</td><td>Tidak Hadir</td><td>0</td></tr>
+      <tr><td>Siswa 03</td><td>Senin</td><td>Hadir</td><td>30</td></tr>
+      <tr><td>Siswa 01</td><td>Selasa</td><td>Hadir</td><td>60</td></tr>
+      <tr><td>Siswa 02</td><td>Selasa</td><td>Hadir</td><td>20</td></tr>
+      <tr><td>Siswa 03</td><td>Selasa</td><td>Hadir</td><td>40</td></tr>
+    </table>
+    <p class="sub f">Perhatikan: penulisan status dan satuan menit harus sama di setiap baris.</p>
+  </section>
+
+  <!-- ============ 13 · TUGAS DASAR ============ -->
+  <section class="slide">
+    <p class="eyebrow">Tugas Dasar</p>
+    <h2 class="title">Algoritma Kerja</h2>
+    <ol class="steps">
+      <li class="f">Buka <b>Google Sheets</b> atau Excel</li>
+      <li class="f">Buat <b>judul kolom</b> di baris pertama</li>
+      <li class="f">Salin <b>6 baris data</b> dengan teliti</li>
+      <li class="f">Cek <b>format &amp; penulisan</b> sudah konsisten</li>
+      <li class="f"><b>Urutkan</b> data berdasarkan Kode Siswa</li>
+    </ol>
+    <div class="note f">✋ Belum terbiasa digital? Susun dulu di <b>kertas berkotak</b>, lalu pindahkan ke spreadsheet.</div>
+  </section>
+
+  <!-- ============ 14 · DATASET PENGAYAAN ============ -->
+  <section class="slide">
+    <p class="eyebrow">Dataset Pengayaan</p>
+    <h2 class="title">Data Mata Pelajaran</h2>
+    <table class="f">
+      <tr><th>Kode Siswa</th><th>Mata Pelajaran</th><th>Media Belajar</th><th>Tingkat Kesulitan (1–5)</th></tr>
+      <tr><td>Siswa 01</td><td>Matematika</td><td>Buku Cetak</td><td>3</td></tr>
+      <tr><td>Siswa 02</td><td>IPA</td><td>Video</td><td>4</td></tr>
+      <tr><td>Siswa 03</td><td>Bahasa Inggris</td><td>Aplikasi HP</td><td>2</td></tr>
+    </table>
+    <div class="note f">🔗 Kunci penghubung kedua tabel adalah <b>Kode Siswa</b> yang sama.</div>
+  </section>
+
+  <!-- ============ 15 · TUGAS PENGAYAAN ============ -->
+  <section class="slide">
+    <p class="eyebrow">Tugas Pengayaan</p>
+    <h2 class="title">Cari Pola dari Dua Tabel</h2>
+    <ul class="bullets gold">
+      <li class="f">Gabungkan dua tabel lewat <b>Kode Siswa</b></li>
+      <li class="f">Bandingkan <b>jam belajar mandiri</b></li>
+      <li class="f">Amati <b>tingkat kesulitan</b> yang dipilih</li>
+      <li class="f">Apakah belajar lebih lama = kesulitan lebih tinggi?</li>
+    </ul>
+    <div class="note f">💬 Tulis 2 kalimat temuanmu. Boleh berbeda pendapat, yang penting ada bukti dari tabel.</div>
+  </section>
+
+  <!-- ============ 16 · COMPUTATIONAL THINKING ============ -->
+  <section class="slide">
+    <p class="eyebrow">Computational Thinking</p>
+    <h2 class="title">Kaitannya dengan Berpikir Komputasional</h2>
+    <div class="grid g4" style="gap:12px">
+      <div class="card f"><h3>🧩 Dekomposisi</h3><p>Memecah "kebiasaan belajar" jadi kolom kecil: durasi, media, mapel.</p></div>
+      <div class="card f"><h3>🔎 Pengenalan Pola</h3><p>Mengamati hari mana yang ketidakhadirannya tinggi.</p></div>
+      <div class="card f"><h3>🎯 Abstraksi</h3><p>Memilih data penting dicatat, mana yang diabaikan.</p></div>
+      <div class="card f"><h3>🪜 Algoritma</h3><p>Menyusun langkah baku mengisi data agar konsisten.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ 17 · ALUR KEGIATAN ============ -->
+  <section class="slide">
+    <p class="eyebrow">Alur Kegiatan</p>
+    <h2 class="title">Tiga Tahap Pembelajaran Mendalam</h2>
+    <div class="timeline">
+      <div class="tl f">
+        <div class="num">1</div>
+        <b>Memahami</b>
+        <p>Diskusi kelas membandingkan tabel rapi vs. berantakan. Murid menentukan mana data terstruktur.</p>
+      </div>
+      <div class="tl f">
+        <div class="num">2</div>
+        <b>Mengaplikasikan</b>
+        <p>Murid menyalin Dataset Dasar (dan Pengayaan) ke spreadsheet sambil menerapkan 5 prinsip konsistensi.</p>
+      </div>
+      <div class="tl f">
+        <div class="num">3</div>
+        <b>Merefleksikan</b>
+        <p>Saling tukar hasil kerja, nilai dengan rubrik, lalu tuliskan satu hal yang akan diperbaiki.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 18 · UDL ============ -->
+  <section class="slide">
+    <p class="eyebrow">Universal Design for Learning</p>
+    <h2 class="title">Belajar Sesuai Gayamu</h2>
+    <div class="grid g3">
+      <div class="card f">
+        <h3>👀 Representasi</h3>
+        <p>Analogi lemari pakaian + visual tabel, bukan hanya definisi verbal.</p>
+      </div>
+      <div class="card gold f">
+        <h3>❤️ Keterlibatan</h3>
+        <p>Topik dari kehidupan murid sendiri, ada pilihan tingkat tantangan (dasar atau pengayaan).</p>
+      </div>
+      <div class="card f">
+        <h3>✋ Aksi &amp; Ekspresi</h3>
+        <p>Boleh menyusun tabel di kertas berkotak dulu sebelum pindah ke Google Sheets/Excel.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 19 · RUBRIK ============ -->
+  <section class="slide">
+    <p class="eyebrow">Asesmen Pertemuan</p>
+    <h2 class="title">Rubrik Kualitas Data</h2>
+    <table class="rub f">
+      <tr><th>Kriteria</th><th>Sangat Baik (4)</th><th>Baik (3)</th><th>Cukup (2)</th><th>Perlu Bimbingan (1)</th></tr>
+      <tr><td>Kelengkapan Data</td>
+        <td>Semua sel terisi, tidak ada kosong tanpa keterangan</td>
+        <td>Hampir semua terisi, 1–2 sel kosong</td>
+        <td>Beberapa sel kosong tanpa keterangan</td>
+        <td>Banyak sel kosong / data tidak lengkap</td></tr>
+      <tr><td>Konsistensi Format</td>
+        <td>Format, istilah, kapitalisasi seragam</td>
+        <td>Sebagian besar konsisten, 1–2 ketidaksesuaian</td>
+        <td>Beberapa kolom tidak konsisten</td>
+        <td>Format berubah-ubah di banyak tempat</td></tr>
+      <tr><td>Akurasi Data</td>
+        <td>Semua data sesuai sumber asli</td>
+        <td>Sebagian besar sesuai, kesalahan kecil</td>
+        <td>Beberapa kesalahan cukup berarti</td>
+        <td>Banyak data tidak sesuai sumber</td></tr>
+      <tr><td>Kerapian Struktur</td>
+        <td>Satu baris = satu entitas, satu kolom = satu jenis data</td>
+        <td>Struktur baik, sedikit kekurangan</td>
+        <td>Cukup jelas tapi ada percampuran data</td>
+        <td>Struktur tidak jelas / data tercampur</td></tr>
+    </table>
+  </section>
+
+  <!-- ============ 20 · SALING MENILAI ============ -->
+  <section class="slide">
+    <p class="eyebrow">Aktivitas</p>
+    <h2 class="title">Saling Menilai dengan Rubrik</h2>
+    <ol class="steps">
+      <li class="f">Tukar <b>layar/kertas</b> dengan teman sebangku</li>
+      <li class="f">Beri skor <b>1–4</b> untuk setiap kriteria rubrik</li>
+      <li class="f">Tulis <b>satu pujian</b> dan <b>satu saran</b></li>
+      <li class="f">Perbaiki milikmu berdasarkan masukan itu</li>
+    </ol>
+    <div class="note f">⏱️ Waktu: <b>3 menit</b> menilai + <b>2 menit</b> memperbaiki.</div>
+  </section>
+
+  <!-- ============ 21 · REFLEKSI ============ -->
+  <section class="slide">
+    <p class="eyebrow">Refleksi</p>
+    <h2 class="title">Exit Ticket</h2>
+    <div class="grid g3">
+      <div class="card f">
+        <h3>1 · Paham</h3>
+        <p>Satu hal baru yang aku pahami hari ini…</p>
+      </div>
+      <div class="card gold f">
+        <h3>2 · Bingung</h3>
+        <p>Satu hal yang masih membuatku bingung…</p>
+      </div>
+      <div class="card pink f">
+        <h3>3 · Perbaikan</h3>
+        <p>Satu hal yang akan aku perbaiki di tabelku…</p>
+      </div>
+    </div>
+    <p class="sub f">Tulis di sticky note / buku catatan. Kumpulkan sebelum bel berbunyi.</p>
+  </section>
+
+  <!-- ============ 22 · RANGKUMAN ============ -->
+  <section class="slide">
+    <p class="eyebrow">Rangkuman</p>
+    <h2 class="title">Poin Penting Hari Ini</h2>
+    <ul class="bullets">
+      <li class="f">Data terstruktur = <b>tabel berformat</b></li>
+      <li class="f">Spreadsheet punya <b>baris, kolom, sel</b></li>
+      <li class="f">Ada <b>5 prinsip</b> input data yang konsisten</li>
+      <li class="f">Data pribadi perlu <b>dianonimkan</b></li>
+      <li class="f">Berpikir komputasional: dekomposisi, pola, abstraksi, algoritma</li>
+    </ul>
+  </section>
+
+  <!-- ============ 23 · TINDAK LANJUT ============ -->
+  <section class="slide">
+    <p class="eyebrow">Tindak Lanjut</p>
+    <h2 class="title">Setelah Pertemuan Ini</h2>
+    <div class="grid g2">
+      <div class="card gold f">
+        <h3>📌 Tugas Rumah</h3>
+        <p>Buat tabel berisi <b>5 kebiasaan belajarmu</b> selama seminggu. Terapkan 5 prinsip konsistensi. Anonimkan namamu dengan kode.</p>
+      </div>
+      <div class="card f">
+        <h3>➡️ Pertemuan Berikutnya</h3>
+        <p>Belajar <b>mengolah data</b>: rumus dasar, pengurutan, dan penyaringan di spreadsheet.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 24 · REFERENSI ============ -->
+  <section class="slide">
+    <p class="eyebrow">Referensi</p>
+    <h2 class="title">Sumber Belajar</h2>
+    <ul class="bullets gold">
+      <li class="f">Materi Ajar <i>Data Terstruktur dan Spreadsheet</i> — MGMP Informatika</li>
+      <li class="f">Buku Informatika Kelas VIII, Kurikulum Merdeka</li>
+      <li class="f">Panduan Google Sheets untuk Pemula</li>
+      <li class="f">Dokumentasi Microsoft Excel Dasar</li>
+    </ul>
+  </section>
+
+  <!-- ============ 25 · PENUTUP ============ -->
+  <section class="slide cover" style="align-items:flex-start">
+    <p class="eyebrow f">SMP NEGERI 19 KOTA BEKASI · TIM MGMP INFORMATIKA</p>
+    <h1 class="f" style="font-size:54px">Terima Kasih! 🙌</h1>
+    <div class="rule f"></div>
+    <p class="quote f">"Data yang rapi hari ini adalah keputusan tepat esok hari —<br>mulailah dari satu tabel kecil milikmu sendiri."
+      <small>— Tetap teliti, tetap konsisten, tetap jaga privasi data! 📊🔒</small>
+    </p>
+    <div class="chips f">
+      <span class="chip">Informatika Kelas VIII</span>
+      <span class="chip pink">Analisis Data</span>
+      <span class="chip gold">Inquiry Learning</span>
+    </div>
+  </section>
+
+</div>
+
+<div id="bar"></div>
+<div id="hud">
+  <button id="btnPrev" title="Sebelumnya">◀</button>
+  <span id="counter">1 / 25</span>
+  <button id="btnNext" title="Berikutnya">▶</button>
+  <button id="btnFull" title="Layar penuh">⛶</button>
+</div>
+
+<script>
+(function(){
+  const stage   = document.getElementById('stage');
+  const slides  = Array.from(document.querySelectorAll('.slide'));
+  const bar     = document.getElementById('bar');
+  const counter = document.getElementById('counter');
+  let cur = 0;
+
+  function resize(){
+    const s = Math.min(window.innerWidth / 1280, (window.innerHeight - 70) / 720);
+    stage.style.transform = `translate(-50%,-50%) scale(${s})`;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function showSlide(i, revealAll){
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach((s, idx) => s.classList.toggle('active', idx === cur));
+    const frags = slides[cur].querySelectorAll('.f');
+    frags.forEach(f => f.classList.remove('show'));
+    if (revealAll) frags.forEach(f => f.classList.add('show'));
+    updateHud();
+  }
+
+  function updateHud(){
+    counter.textContent = (cur + 1) + ' / ' + slides.length;
+    bar.style.width = ((cur + 1) / slides.length * 100) + '%';
+  }
+
+  function next(){
+    const pending = slides[cur].querySelectorAll('.f:not(.show)');
+    if (pending.length) { pending[0].classList.add('show'); }
+    else if (cur < slides.length - 1) { showSlide(cur + 1, false); }
+  }
+
+  function prev(){
+    const shown = slides[cur].querySelectorAll('.f.show');
+    if (shown.length) { shown[shown.length - 1].classList.remove('show'); }
+    else if (cur > 0) { showSlide(cur - 1, true); }
+  }
+
+  document.getElementById('btnNext').addEventListener('click', e => { e.stopPropagation(); next(); });
+  document.getElementById('btnPrev').addEventListener('click', e => { e.stopPropagation(); prev(); });
+  document.getElementById('btnFull').addEventListener('click', e => {
+    e.stopPropagation();
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  });
+
+  document.addEventListener('click', e => {
+    if (e.target.closest('#hud')) return;
+    next();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (['ArrowRight','ArrowDown',' ','PageDown','Enter'].includes(e.key)) { e.preventDefault(); next(); }
+    if (['ArrowLeft','ArrowUp','PageUp'].includes(e.key)) { e.preventDefault(); prev(); }
+    if (e.key === 'Home') showSlide(0, false);
+    if (e.key === 'End')  showSlide(slides.length - 1, true);
+    if (e.key.toLowerCase() === 'f') {
+      if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+      else document.exitFullscreen();
+    }
+  });
+
+  showSlide(0, false);
+})();
+</script>
+</body>
+</html>
